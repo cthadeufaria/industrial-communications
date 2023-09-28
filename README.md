@@ -2,6 +2,12 @@
 
 **Project 01:**
 
+**A Modbus TCP library written in C for a client containing the two following functions:**
+
+**• 03 (0x03) Read Holding Register**
+
+**• 16 (0x10) Write Multiple Registers**
+
 #### To create a connection between the client and local server on port 502 and check traffic using Diagslave and Wireshark on Ubuntu 22.04.3 LTS x86_64 (given all the code in C is already compiled), run:
 
 1. Create local Modbus TCP server on port 502 using diagslave:
