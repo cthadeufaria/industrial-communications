@@ -9,7 +9,6 @@ class Transaction():
 def get_input(method='part'):
     
     if method == 'part':
-        print('\nAll input values must be in hexadecimal format!')
         function_code = input("\nEnter function code (1 bytes): ")
         start_register = input("\nEnter start register address (2 bytes): ")
         num_registers = input("\nEnter number of registers (2 bytes): ")
@@ -21,8 +20,8 @@ def get_input(method='part'):
             values = None
     
     elif method == 'buf':
-        # buf = input("Enter resquest message to send: ")
-        buf = '100000000204ABCDEF01'
+        buf = input("Enter resquest message to send: ")
+        # buf = '100000000204ABCDEF01'
         # buf = '0300000002'
         function_code = buf[:2]
         start_register = buf[2:6]
@@ -33,3 +32,15 @@ def get_input(method='part'):
             values = None
 
     return function_code, start_register, num_registers, values
+
+def check_consistency(start_register, num_registers, values=None):
+    if (int(start_register, 16) > int('0xFFFF', 16)) | (int(num_registers, 16) > int('0xFFFF', 16)):
+        print('Byte string bigger than accepted.')
+        return False
+
+    if values != None:
+        if int(num_registers, 16) != len(values[2:]) / 4:
+            print('Number of registers byte not consistent with values bytes given.')
+            return False
+        
+    return True
