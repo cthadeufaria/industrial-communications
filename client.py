@@ -6,7 +6,7 @@ def main():
     BUF_LEN = 128
     MYIP = "127.0.0.1"
 
-    function_code, start_register, num_registers, values = get_input()
+    function_code, start_register, num_registers, values = get_input(method='buf')
 
     if function_code == '10':
         result = write_multiple_regs(MYIP, MYPORT, start_register, num_registers, values)
@@ -24,4 +24,4 @@ def main():
 
 
 while __name__ == '__main__':
-    main()
+    main() # TODO: test write and read loop.

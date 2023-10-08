@@ -1,3 +1,10 @@
+import itertools
+
+class Transaction():
+    id_obj = itertools.count(1)
+
+    def __init__(self):
+        self.id = next(Transaction.id_obj)
 
 def get_input(method='part'):
     
@@ -14,8 +21,8 @@ def get_input(method='part'):
             values = None
     
     elif method == 'buf':
-        buf = input("Enter resquest message to send: ")
-        # buf = '100000000204ABCDEF01'
+        # buf = input("Enter resquest message to send: ")
+        buf = '100000000204ABCDEF01'
         # buf = '0300000002'
         function_code = buf[:2]
         start_register = buf[2:6]
