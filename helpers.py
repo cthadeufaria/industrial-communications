@@ -34,7 +34,7 @@ def get_input(method='part'):
     return function_code, start_register, num_registers, values
 
 def check_consistency(start_register, num_registers, values=None):
-    if (int(start_register, 16) > int('0xFFFF', 16)) | (int(num_registers, 16) > int('0xFFFF', 16)):
+    if (int(start_register, 16) > int('0xFFFF', 16)) | (int(num_registers, 16) > int('0x007B', 16)) | (int(num_registers, 16) < int('0x0001', 16)):
         print('Byte string bigger than accepted.')
         return False
 

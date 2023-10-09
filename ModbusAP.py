@@ -23,7 +23,7 @@ def write_multiple_regs(server_address, port, start_register, num_registers, val
     # Send request.
     APDU_R, result = send_modbus_request(server_address, port, apdu, apdu_len)
 
-    # Check if error response.
+    # Check if error response and, if error, return error code.
     if APDU_R[0] != 16:
         return hex(APDU_R[1])
 
@@ -54,7 +54,7 @@ def read_holding_regs(server_address, port, start_register, num_registers):
 
     values = bytearray()
 
-    # Check if error response.
+    # Check if error response and, if error, return error code.
     if APDU_R[0] != 16:
         return hex(APDU_R[1])
 
