@@ -2,21 +2,13 @@
 
 **Project 01:**
 
-**A Modbus TCP library written in C for a client containing the two following functions:**
+**A Modbus TCP library written in Python for a client containing the two following functions:**
 
 **• 03 (0x03) Read Holding Register**
 
 **• 16 (0x10) Write Multiple Registers**
 
-#### Before starting:
-
-0. Compile the necessary files:
-
-   ```
-   gcc -o client ModbusAP.c ModbusTCP.c client.c -lm
-   ```
-
-#### To make sure the port you're connecting to is available:
+#### Before starting, to make sure the port you're connecting to is available:
 
 1. Check port status:
 
