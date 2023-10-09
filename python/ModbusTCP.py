@@ -3,7 +3,7 @@ from helpers import Transaction
 
 def send_modbus_request(ip, port, APDU, APDUlen):
     protocol_identifier = 0x0000
-    unitID = 0x11
+    unitID = 0x11 # test unitID = 51
     
     # Generate transaction ID.
     transaction_id = Transaction().id
