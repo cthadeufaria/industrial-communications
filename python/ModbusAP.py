@@ -1,10 +1,10 @@
 from ModbusTCP import send_modbus_request
-from helpers import check_consistency
+# from helpers import check_consistency
 
 def write_multiple_regs(server_address, port, start_register, num_registers, values):
     # Check consistency of parameters.
-    if not check_consistency(start_register, num_registers, values):
-        return -1
+    # if not check_consistency(start_register, num_registers, values):
+    #     return -1
 
     # Assemble APDU.
     start_register = int(start_register, 16)
@@ -36,8 +36,8 @@ def write_multiple_regs(server_address, port, start_register, num_registers, val
 
 def read_holding_regs(server_address, port, start_register, num_registers):
     # Check consistency of parameters.
-    if not check_consistency(start_register, num_registers, values):
-        return -1
+    # if not check_consistency(start_register, num_registers, values):
+    #     return -1
 
     # Assemble APDU
     start_register = int(start_register, 16)

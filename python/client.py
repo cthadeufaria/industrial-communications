@@ -1,11 +1,15 @@
 from ModbusAP import read_holding_regs, write_multiple_regs
-from helpers import get_input
+# from helpers import get_input
 
 def main():
     MYPORT = 502
     MYIP = "127.0.0.1"
 
-    function_code, start_register, num_registers, values = get_input()
+    # function_code, start_register, num_registers, values = get_input()
+    function_code = '10'
+    start_register = '0000'
+    num_registers = '0002'
+    values = '0400070007'
 
     if function_code == '10':
         result = write_multiple_regs(MYIP, MYPORT, start_register, num_registers, values)

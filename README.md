@@ -2,7 +2,7 @@
 
 **Project 01:**
 
-**A Modbus TCP library written in Python for a client containing the two following functions:**
+**Two different Modbus/TCP libraries written in Python and C for a client containing the two following functions:**
 
 **• 03 (0x03) Read Holding Register**
 
