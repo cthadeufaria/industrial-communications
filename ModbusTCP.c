@@ -5,9 +5,9 @@
 #include <arpa/inet.h>
 #include "ModbusTCP.h"
 
-void send_modbus_request(const char* ip, int port, const char* APDU, int APDUlen, char* APDU_R) {
+int send_modbus_request(const char* ip, int port, const char* APDU, int APDUlen, char* APDU_R) {
     int protocol_identifier = 0x0000;
-    int unitID = 0x11;
+    int unitID = 0x51;
     int transaction_id = 0x0001;
 
     // Assemble PDU = Mbap header + APDU.
@@ -23,7 +23,6 @@ void send_modbus_request(const char* ip, int port, const char* APDU, int APDUlen
     char PDU[APDUlen + 7];
     memcpy(PDU, mbap, 7);
     memcpy(PDU + 7, APDU, APDUlen);
-    printf(PDU);
 
     // Open TCP client socket and connect to server.
     int fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -36,8 +35,6 @@ void send_modbus_request(const char* ip, int port, const char* APDU, int APDUlen
     // Send Modbus TCP PDU.
     send(fd, PDU, APDUlen + 7, 0);
 
-    printf(PDU);
-
     // Get server response.
     recv(fd, APDU_R, APDUlen + 8, 0);
 
@@ -46,4 +43,6 @@ void send_modbus_request(const char* ip, int port, const char* APDU, int APDUlen
 
     // Close TCP client socket with server.
     close(fd);
+
+    return 0;
 }

@@ -10,7 +10,7 @@ int write_multiple_regs(const char* server_address, int port, const char* start_
     int num_regs = strtol(num_registers, NULL, 16);
 
     // Calculate the length of the APDU
-    int apdu_len = 7 + num_regs * 2;
+    int apdu_len = 6 + num_regs * 2;
 
     // Create the APDU buffer
     unsigned char apdu[256];
@@ -21,20 +21,40 @@ int write_multiple_regs(const char* server_address, int port, const char* start_
     apdu[4] = num_regs & 0xFF;
     apdu[5] = num_regs * 2;
 
-    // Assuming 'values' is a hexadecimal string, you should convert it to binary data here.
+    char* hexSubstring = &values[2];
+    char hexBuffer[5];
+    int i;
+    int j;
+
+	for (i = 6; i < 6 + (num_regs * 2); i = i + 2) {
+        hexSubstring += j;
+       	strncpy(hexBuffer, hexSubstring, 4);
+        apdu[i] = (strtol(hexBuffer, NULL, 16) >> 8) & 0xFF;
+        apdu[i + 1] = strtol(hexBuffer, NULL, 16) & 0xFF;
+        j = j + 4;
+   }
 
     // Send the Modbus request
     unsigned char APDU_R[256];
-    send_modbus_request(server_address, port, apdu, apdu_len, APDU_R);
+    int result = send_modbus_request(server_address, port, apdu, apdu_len, APDU_R);
 
     // Check if error response and, if error, return error code.
-    if (APDU_R[0] != 16) {
+    if (APDU_R[0] == 144) {
         return APDU_R[1];
     }
 
-    // Return the number of written registers
-    int num_written_registers = (APDU_R[apdu_len - 2] << 8) | APDU_R[apdu_len - 1];
-    return num_written_registers;
+    else if (result == -1) {
+        return result;
+    }
+
+    return 0;
+
+    // if (APDU_R[0] == 16) {
+    //     // Return the number of written registers
+    //     int num_written_registers = (APDU_R[apdu_len - 2] << 8) | APDU_R[apdu_len - 1];
+    //     return num_written_registers;
+    // }
+
 }
 
 int read_holding_regs(const char* server_address, int port, const char* start_register, const char* num_registers, unsigned char* values) {
@@ -43,7 +63,7 @@ int read_holding_regs(const char* server_address, int port, const char* start_re
     int num_regs = strtol(num_registers, NULL, 16);
 
     // Calculate the length of the APDU
-    int apdu_len = 6;
+    int apdu_len = 5;
 
     // Create the APDU buffer
     unsigned char apdu[256];
@@ -55,18 +75,33 @@ int read_holding_regs(const char* server_address, int port, const char* start_re
 
     // Send the Modbus request
     unsigned char APDU_R[256];
-    send_modbus_request(server_address, port, apdu, apdu_len, APDU_R);
+    int result = send_modbus_request(server_address, port, apdu, apdu_len, APDU_R);
 
-    // Assuming APDU_R contains the response data in binary format
-    if (APDU_R == 0) {
-        int num_read_registers = APDU_R[1] / 2;
-        
-        for (int i = 0; i < num_read_registers; i++) {
-            values[i] = APDU_R[2 + 2 * i];
-            values[i + 1] = APDU_R[3 + 2 * i];
-        }
-        return num_read_registers;
+    // Check if error response and, if error, return error code.
+    if (APDU_R[0] == 131) {
+        return APDU_R[1];
     }
 
-    return -1;
+    // else if (APDU_R[0] == 2) {
+    //     return APDU_R[1];
+    // }
+
+    else if (result == -1) {
+        return result;
+    }
+
+    return 0;
+
+    // // Assuming APDU_R contains the response data in binary format
+    // if (APDU_R == 0) {
+    //     int num_read_registers = APDU_R[1] / 2;
+        
+    //     for (int i = 0; i < num_read_registers; i++) {
+    //         values[i] = APDU_R[2 + 2 * i];
+    //         values[i + 1] = APDU_R[3 + 2 * i];
+    //     }
+    //     return num_read_registers;
+    // }
+
+    // return -1;
 }
