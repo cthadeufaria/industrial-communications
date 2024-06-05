@@ -1,3 +1,4 @@
 10000a1400010203040506070809
 10000000020402030405 write 2 registers / 4 bytes
 100000000204ABCDEF01 write 2 registers / 4 bytes
+gcc clienteA.c ModbusTCP.c ModbusAP.c -o clienteA

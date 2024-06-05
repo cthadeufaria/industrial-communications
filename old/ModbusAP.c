@@ -23,13 +23,13 @@ int write_multiple_regs(const char* server_address, int port, const char* start_
 
     unsigned char* hexSubstring;
     memcpy(hexSubstring, &values[2], sizeof(&values[2]));
-    char hexBuffer;
+    unsigned char* hexBuffer[5];
     int i;
     int j;
 
 	for (i = 6; i < 6 + (num_regs * 2); i = i + 2) {
         hexSubstring += j;
-       	strncpy(hexBuffer, &values[2], 4);
+       	strncpy(hexBuffer, hexSubstring, 4);
         apdu[i] = (strtol(hexBuffer, NULL, 16) >> 8) & 0xFF;
         apdu[i + 1] = strtol(hexBuffer, NULL, 16) & 0xFF;
         j = j + 4;
