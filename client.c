@@ -1,28 +1,63 @@
-#include <stdio.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+
 #include <string.h>
-#include <stdlib.h>
-#include "ModbusAP.h"
+#include <stdio.h>
+
+#define PORT 22222
+#define IP "127.0.0.1"
+#define BUF_LEN 1024
+
 
 int main() {
-    int MYPORT = 502;
-    const char* MYIP = "127.0.0.1";
+    int sock;
+    struct sockaddr_in sad_loc;
+    char buf[BUF_LEN];
+    int conn, sent, rec, closed, shut;
 
-    // Simulated values for testing writing multiple registers
-    // const char* function_code = "10";
-    const char* start_register = "0000";
-    const char* num_registers = "0002";
-    const char* values = "0400070007";
+    sock = socket(PF_INET, SOCK_STREAM, 0);
+    if (sock < 0) {
+        perror("socket");
+        return 1;
+    }
 
-    // Simulated values for testing reading multiple registers
-    // const char* function_code = "03";
-    // const char* start_register = "0000";
-    // const char* num_registers = "0002";
-    // unsigned char values[256];
+    sad_loc.sin_family = PF_INET;
+    sad_loc.sin_port = htons(PORT);
+    inet_aton(IP, &sad_loc.sin_addr);
 
-    int result = write_multiple_regs(MYIP, MYPORT, start_register, num_registers, values);
-    // int result = read_holding_regs(MYIP, MYPORT, start_register, num_registers, values);
+    conn = connect(sock, (struct sockaddr *)&sad_loc, sizeof(sad_loc));
+    if (conn < 0) {
+        perror("connect");
+        return 1;
+    }
 
-    printf(result);
+    scanf("%s", buf);
+    sent = send(sock, buf, strlen(buf)+1, 0);
+    if (sent < 0) {
+        perror("send");
+        return 1;
+    }
+
+    rec = recv(sock, buf, BUF_LEN, 0);
+    if (rec < 0) {
+        perror("recv");
+        return 1;
+    }
+
+    printf("Received: %s\n", buf);
+
+    closed = close(sock);
+    if (closed < 0) {
+        perror("close");
+        return 1;
+    }
 
     return 0;
 }
+
+// int bind(int sockfd, struct sockaddr *s_addr, socklen_t addrlen);
+
+// int listen(int sock, int backlog);
