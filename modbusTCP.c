@@ -1,7 +1,7 @@
 #include "modbusTCP.h"
 
-#define PORT 22222
-#define IP "127.0.0.1"
+// #define PORT 22222
+// #define IP "127.0.0.1"
 #define BUF_LEN 1024
 
 uint16_t TI = 0;
@@ -39,13 +39,28 @@ int send_modbus_request (char* server_addr, int port, uint8_t* APDU, int APDU_le
     }
 
     sad_loc.sin_family = PF_INET;
-    sad_loc.sin_port = htons(PORT);
-    inet_aton(IP, &sad_loc.sin_addr);
+    sad_loc.sin_port = htons(port);
+    // inet_aton(IP, &sad_loc.sin_addr);
+    inet_aton(server_addr, &sad_loc.sin_addr);
+    if (inet_aton(server_addr, &sad_loc.sin_addr) == 0) {
+        fprintf(stderr, "Invalid IP address: %s\n", server_addr);
+        return 1;
+    }
+    printf("Connecting to IP %s on port %d (network byte order: %d)\n", server_addr, port, htons(port));
 
+    // debug
+    printf("Debug: Attempting to connect\n");
+    printf("sock = %d\n", sock);
+    printf("sad_loc.sin_family = %d (AF_INET = %d)\n", sad_loc.sin_family, AF_INET);
+    printf("sad_loc.sin_port = %d (network order: %d)\n", port, sad_loc.sin_port);
+    printf("sad_loc.sin_addr = %s\n", inet_ntoa(sad_loc.sin_addr));
+    
     conn = connect(sock, (struct sockaddr *)&sad_loc, sizeof(sad_loc));
     if (conn < 0) {
-        perror("connect");
+        perror("Error in connect");  // Prints a descriptive error message
         return 1;
+    } else {
+        printf("Successfully connected!\n");
     }
 
     // write (fd, PDU, PDUlen) // sends Modbus TCP PDU

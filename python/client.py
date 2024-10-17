@@ -7,8 +7,8 @@ def main():
 
     # function_code, start_register, num_registers, values = get_input()
     function_code = '10'
-    start_register = '0000'
-    num_registers = '0002'
+    start_register = '0005'
+    num_registers = '0003'
     values = '0400070007'
 
     if function_code == '10':
@@ -26,5 +26,5 @@ def main():
             print("Error reading registers.")
 
 
-while __name__ == '__main__':
+if __name__ == '__main__':
     main()

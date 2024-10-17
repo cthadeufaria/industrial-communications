@@ -35,7 +35,7 @@ int write_multiple_registers (char* server_addr, int port, uint16_t st_r, uint16
     printf("\n");
 
     // Send_Modbus_request (server_add,port,APDU,APDUlen,APDU_R)
-    int result = Send_Modbus_request(server_addr, port, apdu, apdu_len, APDU_R);
+    int result = send_modbus_request(server_addr, port, apdu, apdu_len, APDU_R);
     if (result < 0) {
         fprintf(stderr, "Failed to send Modbus request\n");
         return -2;
