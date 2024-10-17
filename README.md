@@ -27,7 +27,7 @@
 3. Create local Modbus TCP server on port 502 using diagslave:
     
     ```
-    sudo ./diagslave-3.4/diagslave/x86_64-linux-gnu/diagslave -m tcp
+    sudo ./diagslave-3.4/diagslave/x86_64-linux-gnu/diagslave -m tcp -p 502
     ```
 
 4. Run the client to connect to local server created:
