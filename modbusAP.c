@@ -2,9 +2,14 @@
 #include <stdint.h>
 #include "modbusAP.h"
 
+#define BUFFERSIZE 256 // 253
+#define READ 3
+#define WRITE 16
+#define NUMERO_MAX_WRITE 123
+#define NUMERO_MAX_READ 125// esta nos slides na parte function code na parte numero
 
 
-int write_multiple_registers (char* server_addr, int port, uint16_t st_r, uint16_t n_r, uint16_t* val) {
+int write_multiple_registers (char *server_addr, int port, uint16_t st_r, uint16_t n_r, uint16_t *val) {
     uint8_t apdu[MAX_APDU], APDU_R[5];
     int apdu_len;
 
@@ -27,12 +32,16 @@ int write_multiple_registers (char* server_addr, int port, uint16_t st_r, uint16
         apdu[7 + 2 * i] = (uint8_t) val[i]; // Register value low byte
     }
 
+    apdu_len = 6 + 2 * n_r;
+    
     // debug: print apdu
     printf("APDU: ");
     for (int i = 0; i < 6 + 2 * n_r; i++) {
         printf("%.2x ", apdu[i]);
     }
     printf("\n");
+
+    printf("APDUlen: %d\n", apdu_len);
 
     // Send_Modbus_request (server_add,port,APDU,APDUlen,APDU_R)
     int result = send_modbus_request(server_addr, port, apdu, apdu_len, APDU_R);
@@ -47,13 +56,6 @@ int write_multiple_registers (char* server_addr, int port, uint16_t st_r, uint16
         fprintf(stderr, "Modbus error\n");
         return -APDU_R[1];
     }
-
-    // debug: print APDU_R
-    printf("APDU_R: ");
-    for (int i = 0; i < 5; i++) {
-        printf("%.2x ", APDU_R[i]);
-    }
-    printf("\n");
 
     // // Check if the response contains the correct starting address and quantity of registers
     // uint16_t resp_st_r = (APDU_R[1] << 8) | APDU_R[2];
@@ -70,11 +72,99 @@ int write_multiple_registers (char* server_addr, int port, uint16_t st_r, uint16
 }
 
 
-
-void read_holding_registers (server_addr, port, st_r, n_r, val) {
+int read_holding_registers(char *server_add,unsigned int port, uint16_t st_r, uint16_t n_r, uint16_t *val )
+{
     // check consistency of parameters
     // assembles APDU (MODBUS PDU)
     // Send_Modbus_request (server_add,port,APDU,APDUlen,APDU_R)
     // checks the reponse (APDU_R or error_code)
     // returns: number of read registers – ok, <0 – error
+    if(st_r==0 || st_r<0)
+    {
+        //printf("Endereço inválido\n");
+        return -50;
+    }
+    uint16_t new_str=st_r-1;
+    uint8_t APDU[BUFFERSIZE], APDU_R[BUFFERSIZE];
+    if(n_r>NUMERO_MAX_READ)
+    {
+        //printf("Excedeu o numero maximo dos registo\n");
+        return -50;
+    }
+    uint16_t new_str1=st_r-1;
+    APDU[0]=(uint8_t)(READ);
+    APDU[1]=(uint8_t)(new_str1 >> 8);
+    APDU[2]=(uint8_t)(new_str1 & 0b0000000011111111);
+    APDU[3]=(uint8_t)(n_r >> 8);
+    APDU[4]=(uint8_t)(n_r & 0b0000000011111111);
+    uint16_t APDUlen=5; // duvida
+    // ja esta feita a mensagem que se vai enviar
+    int verifica_send_modbus1;
+    verifica_send_modbus1=send_modbus_request(server_add, port, APDU,APDUlen, APDU_R); // manda para o TCP
+    if(verifica_send_modbus1<0)
+    {
+        //printf(" Erro na parte send_modbus_request\n");
+        return -50;
+    }
+    if (APDU_R[0]!=(uint8_t)(3))
+    {
+        if(APDU_R[1]==(uint8_t)(1))
+        {
+            //printf("Exception: ILLEGAL FUNCTION\n");   
+            return -1;        
+        }
+        else if (APDU_R[1]==(uint8_t)(2))
+        {
+            //printf("Exception: ILLEGAL DATA ADDRESS\n");
+            return -2;
+        }
+        else if (APDU_R[1]==(uint8_t)(3))
+        {
+            //printf("Exception: ILLEGAL DATA VALUE\n ");
+            return -3;
+        }
+         else if (APDU_R[1]==(uint8_t)(4))
+        {
+            //printf("Exception: SERVER DEVICE FAILURE\n ");
+            return -4;
+        }
+    }
+    int indice1=1,i=0, flag_neg;
+    uint16_t aux1, aux;
+    for(i=0;i<(int)(APDU_R[1])/2;i++)
+    {
+        flag_neg=0;
+        indice1=indice1+1;
+        
+         if((APDU_R[indice1] & 0b1000000000000000)==0b1000000000000000)
+         {
+            flag_neg=1;
+         }
+       /* val[i]=(uint16_t)(APDU_R[indice1]);
+        indice1=indice1+1;
+        val[i]=(uint16_t)(val[i]+APDU_R[indice1]);*/
+       unsigned int binary = 0;
+       for (int i = 15; i >= 0; i--) {
+        int bit = (APDU_R[indice1] >> i) & 1;
+        binary = (binary << 1) | bit;
+    }
+     // vamos ter em binario de 16 bits 
+     binary = binary<<8;
+    
+     indice1++;
+     unsigned int binary1 = 0;
+       for (int i = 15; i >= 0; i--) {
+        int bit = (APDU_R[indice1] >> i) & 1;
+        binary1 = (binary1 << 1) | bit;
+    }
+    val[i]=(uint16_t)(binary|binary1);
+
+        /*val[i]=val[i]<<8;
+        val[i]=val[i] | 0b0000000011111111;// isto vai colocar nos 8 bits n altera e na parte coloca
+        indice1=indice1+1;
+        aux= (uint16_t)(APDU_R[indice1]);
+        aux=aux | 0b1111111100000000; // coloca 111111 e o 8 bit menos significativos iguais*/
+        
+    }
+    return i;
 }
